@@ -16,10 +16,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Grafik Data Monitoring Kelembaban</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
-                    </div>
-                    <hr>
+                    <div id="chart-kelembapan"></div>
                     <p align="center">5 Data Kelembaban Terakhir</p>
                 </div>
             </div>
@@ -38,7 +35,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
 
-                    <table class="table mt-2">
+                    <table id="examples" class="table mt-2">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -60,11 +57,82 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-</div>
-<!-- /.container-fluid -->
 </div>
 
-<!-- End of Main Content -->
+
+<script>
+    var chartKelembapan;
+    var total = 0;
+
+    function getGrafik() {
+        $.ajax({
+            url: '<?php echo base_url('admin/get_grafik') ?>',
+            dataType: 'json',
+            success: function(result) {
+                if (result.length > total) {
+                    total = result.length;
+
+                    var i;
+                    var kelembapan = [];
+                    var date = [];
+
+                    for (i = 0; i < result.length; i++) {
+                        kelembapan[i] = Number(result[i].udara);
+
+                        date[i] = result[i].dibuat;
+
+                        chartKelembapan.series[0].setData(kelembapan);
+
+                        chartKelembapan.xAxis[0].setCategories(date);
+                    }
+                } else if (result.length <= total) {
+                    total = result.length;
+
+                    var i;
+                    var kelembapan = [];
+                    var date = [];
+
+                    for (i = 0; i < result.length; i++) {
+                        kelembapan[i] = Number(result[i].udara);
+
+                        date[i] = result[i].dibuat;
+
+                        chartKelembapan.series[0].setData(kelembapan);
+
+                        chartKelembapan.xAxis[0].setCategories(date);
+                    }
+                }
+
+                setTimeout(getGrafik, 30000);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        getGrafik();
+
+        chartKelembapan = Highcharts.chart('chart-kelembapan', {
+            chart: {
+                type: 'line',
+                events: {
+                    load: getGrafik
+                }
+            },
+            title: {
+                text: 'Grafik Data Monitoring Kelembapan'
+            },
+            yAxis: {
+                title: {
+                    text: 'Nilai Kelembapan'
+                }
+            },
+            xAxis: {
+
+            },
+            series: [{
+                name: "Kelembapan"
+            }]
+        });
+    });
+</script>

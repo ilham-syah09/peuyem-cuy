@@ -106,7 +106,7 @@
     <div class="row">
 
         <!-- Area Chart -->
-        <div class="col-xl-8 ">
+        <div class="col-xl-8">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -114,42 +114,45 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-
-                    <table class="table mt-2">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Suhu</th>
-                                <th>Kelembaban</th>
-                                <th>Alkohol</th>
-                                <th>Berat</th>
-                                <th>Kondisi</th>
-                                <th>Data Masuk</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $i = 1; ?>
-                            <?php foreach ($monitoring as $m) : ?>
-                            <tr>
-                                <td><?= $i++; ?></td>
-                                <td><?= $m['suhu']; ?> <sup style="font-size: 15px"> o</sup>C</td>
-                                <td><?= $m['udara']; ?> %</td>
-                                <td><?= $m['alkohol']; ?> %</td>
-                                <td><?= $m['berat']; ?> Kg</td>
-                                <td>
-                                    <?php
-                                        if ($m['alkohol'] >= '4') {
-                                            echo '<span class="badge badge-success">Tape Sudah Matang</span>';
-                                        } else {
-                                            echo '<span class="badge badge-danger">Tape Belum Matang</span>';
-                                        }
-                                        ?>
-                                </td>
-                                <td><?= $m['dibuat']; ?></td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="example" class="table mt-2">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Suhu</th>
+                                    <th>Kelembaban</th>
+                                    <th>Alkohol</th>
+                                    <th>Berat</th>
+                                    <th>Penyusutan</th>
+                                    <th>Kondisi</th>
+                                    <th>Data Masuk</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $i = 1; ?>
+                                <?php foreach ($monitoring as $m) : ?>
+                                    <tr>
+                                        <td><?= $i++; ?></td>
+                                        <td><?= $m['suhu']; ?> <sup style="font-size: 15px"> o</sup>C</td>
+                                        <td><?= $m['udara']; ?> %</td>
+                                        <td><?= $m['alkohol']; ?> %</td>
+                                        <td><?= $m['berat']; ?> Gram</td>
+                                        <td><?= (1000 - $m['berat']); ?> Gram</td>
+                                        <td>
+                                            <?php
+                                            if ($m['alkohol'] >= '4') {
+                                                echo '<span class="badge badge-success">Tape Sudah Matang</span>';
+                                            } else {
+                                                echo '<span class="badge badge-danger">Tape Belum Matang</span>';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td><?= $m['dibuat']; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -214,22 +217,22 @@
 <!-- End of Main Content -->
 
 <script>
-function realtime() {
-    $.ajax({
-        url: "<?= base_url('admin/get_realtime'); ?>",
-        dataType: "json",
-        success: function(response) {
+    function realtime() {
+        $.ajax({
+            url: "<?= base_url('admin/get_realtime'); ?>",
+            dataType: "json",
+            success: function(response) {
 
-            console.log(response)
-            $('#suhu').text(response.data.suhu);
-            $('#udara').text(response.data.udara);
-            $('#alkohol').text(response.data.alkohol);
-            $('#berat').text(response.data.berat);
+                console.log(response)
+                $('#suhu').text(response.data.suhu);
+                $('#udara').text(response.data.udara);
+                $('#alkohol').text(response.data.alkohol);
+                $('#berat').text(response.data.berat);
 
-            setTimeout(realtime, 2000)
-        }
-    });
-}
+                setTimeout(realtime, 2000)
+            }
+        });
+    }
 
-realtime();
+    realtime();
 </script>

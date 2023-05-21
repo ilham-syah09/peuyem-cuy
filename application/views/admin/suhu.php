@@ -16,10 +16,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Grafik Data Monitoring Suhu</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="myAreaChart"></canvas>
-                    </div>
-                    <hr>
+                    <div id="chart-suhu"></div>
                     <p align="center">5 Data Suhu Terakhir</p>
                 </div>
             </div>
@@ -27,7 +24,6 @@
     </div>
 
     <div class="row">
-
         <!-- Area Chart -->
         <div class="col">
             <div class="card shadow mb-4">
@@ -38,7 +34,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
 
-                    <table class="table mt-2">
+                    <table id="examples" class="table mt-2">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -60,11 +56,81 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-</div>
-<!-- /.container-fluid -->
 </div>
 
-<!-- End of Main Content -->
+<script>
+    var chartSuhu;
+    var total = 0;
+
+    function getGrafik() {
+        $.ajax({
+            url: '<?php echo base_url('admin/get_grafik') ?>',
+            dataType: 'json',
+            success: function(result) {
+                if (result.length > total) {
+                    total = result.length;
+
+                    var i;
+                    var suhu = [];
+                    var date = [];
+
+                    for (i = 0; i < result.length; i++) {
+                        suhu[i] = Number(result[i].suhu);
+
+                        date[i] = result[i].dibuat;
+
+                        chartSuhu.series[0].setData(suhu);
+
+                        chartSuhu.xAxis[0].setCategories(date);
+                    }
+                } else if (result.length <= total) {
+                    total = result.length;
+
+                    var i;
+                    var suhu = [];
+                    var date = [];
+
+                    for (i = 0; i < result.length; i++) {
+                        suhu[i] = Number(result[i].suhu);
+
+                        date[i] = result[i].dibuat;
+
+                        chartSuhu.series[0].setData(suhu);
+
+                        chartSuhu.xAxis[0].setCategories(date);
+                    }
+                }
+
+                setTimeout(getGrafik, 30000);
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        getGrafik();
+
+        chartSuhu = Highcharts.chart('chart-suhu', {
+            chart: {
+                type: 'line',
+                events: {
+                    load: getGrafik
+                }
+            },
+            title: {
+                text: 'Grafik Data Monitoring Suhu'
+            },
+            yAxis: {
+                title: {
+                    text: 'Nilai Suhu'
+                }
+            },
+            xAxis: {
+
+            },
+            series: [{
+                name: "Suhu"
+            }]
+        });
+    });
+</script>

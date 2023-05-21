@@ -19,11 +19,7 @@
                     </div>
                     <!-- Card Body -->
                     <div class="card-body">
-                        <div id="canvas-holder" style="width:100%">
-                            <canvas id="chart"></canvas>
-                        </div>
-                        <hr>
-                        <p align="center">5 Data Suhu Terakhir</p>
+                        <div id="chart-alkohol"></div>
                     </div>
                 </div>
             </div>
@@ -42,7 +38,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
 
-                    <table class="table mt-2">
+                    <table id="examples" class="table mt-2">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -74,9 +70,61 @@
                 </div>
             </div>
         </div>
-
     </div>
+</div>
 
-</div>
-<!-- /.container-fluid -->
-</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        getAlkohol();
+        chartAlkohol = Highcharts.chart('chart-alkohol', {
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Grafik Kadar Alkohol'
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: '%'
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        format: '<b>{point.name}</b>: {point.y} Tape'
+                    },
+                    showInLegend: true
+                }
+            },
+            series: [{
+                name: 'Keterangan',
+                colorByPoint: true
+            }]
+        });
+    });
+
+    function getAlkohol() {
+        $.ajax({
+            url: '<?php echo base_url('admin/get_grafik_alkohol') ?>',
+            dataType: 'json',
+            success: function(result) {
+                let dataAlkohol = [];
+
+                for (let i = 0; i < result.length; i++) {
+                    dataAlkohol.push({
+                        name: result[i].name,
+                        y: parseInt(result[i].total)
+                    });
+                }
+
+                chartAlkohol.series[0].setData(dataAlkohol);
+            }
+        })
+    }
+</script>

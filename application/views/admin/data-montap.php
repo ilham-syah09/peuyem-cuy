@@ -71,7 +71,7 @@
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
                                     <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                        <?= $this->Data_model->beratterbaru(); ?> Kg</div>
+                                        <?= $this->Data_model->beratterbaru(); ?> Gram</div>
                                 </div>
                             </div>
                         </div>
@@ -113,7 +113,20 @@
     <!-- Content Row -->
 
     <div class="row">
-
+        <div class="col-xl-4">
+            <div class="form-group">
+                <label for="tanggal">Tanggal Awal</label>
+                <input type="date" name="tanggal_awal" id="by_tanggal_awal" class="form-control" value="<?= $tanggal_awal; ?>">
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="form-group">
+                <label for="tanggal">Tanggal Akhir</label>
+                <input type="date" name="tanggal_akhir" id="by_tanggal_akhir" class="form-control" value="<?= $tanggal_akhir; ?>">
+            </div>
+        </div>
+    </div>
+    <div class="row">
         <!-- Area Chart -->
         <div class="col">
             <div class="card shadow mb-4">
@@ -124,7 +137,7 @@
                 <!-- Card Body -->
                 <div class="card-body">
 
-                    <table class="table mt-2">
+                    <table id="examples" class="table mt-2">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -132,6 +145,7 @@
                                 <th>Kelembaban</th>
                                 <th>Alkohol</th>
                                 <th>Berat</th>
+                                <th>Penyusutan</th>
                                 <th>Kondisi</th>
                                 <th>Data Masuk</th>
                             </tr>
@@ -144,7 +158,8 @@
                                     <td><?= $m['suhu']; ?> <sup style="font-size: 15px"> o</sup>C</td>
                                     <td><?= $m['udara']; ?> %</td>
                                     <td><?= $m['alkohol']; ?> %</td>
-                                    <td><?= $m['berat']; ?> Kg</td>
+                                    <td><?= $m['berat']; ?> Gram</td>
+                                    <td><?= (1000 - $m['berat']); ?> Gram</td>
                                     <td>
                                         <?php
                                         if ($m['alkohol'] >= '4') {
@@ -162,12 +177,15 @@
                 </div>
             </div>
         </div>
-
-
     </div>
-
 </div>
 <!-- /.container-fluid -->
 
-</div>
-<!-- End of Main Content -->
+<script>
+    $('#by_tanggal_akhir').change(function() {
+        let tanggal_awal = $('#by_tanggal_awal').val();
+        let tanggal_akhir = $(this).val();
+
+        document.location.href = `<?= base_url('admin/datamontap/${tanggal_awal}/${tanggal_akhir}'); ?>`;
+    });
+</script>

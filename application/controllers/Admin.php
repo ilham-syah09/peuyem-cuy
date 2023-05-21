@@ -35,6 +35,38 @@ class Admin extends CI_Controller
 		]);
 	}
 
+	public function get_grafik()
+	{
+		$this->db->order_by('id', 'desc');
+		$query = $this->db->get('tbl_sensor', 5)->result();
+
+		echo json_encode(array_reverse($query));
+	}
+
+	public function get_grafik_alkohol()
+	{
+		$this->db->select('COUNT(id) as total');
+		$this->db->where('alkohol <', 4);
+
+		$mentah = $this->db->get('tbl_sensor')->row();
+
+		$this->db->select('COUNT(id) as total');
+		$this->db->where('alkohol >=', 4);
+
+		$mateng = $this->db->get('tbl_sensor')->row();
+
+		echo json_encode([
+			'0' => [
+				'total' => $mentah->total,
+				'name' => 'Mentah'
+			],
+			'1' => [
+				'total' => $mateng->total,
+				'name' => 'Matang'
+			]
+		]);
+	}
+
 	public function profile()
 	{
 		if ($this->session->userdata('role_id') != 1) {
@@ -322,11 +354,30 @@ class Admin extends CI_Controller
 		}
 	}
 
-	public function dataMontap()
+	public function dataMontap($tanggal_awal = null, $tanggal_akhir = null)
 	{
+		if ($tanggal_awal > $tanggal_akhir) {
+			$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Tanggal awal tidak boleh melebihi tanggal akhir</div>');
+
+			redirect($_SERVER['HTTP_REFERER'], 'refresh');
+		}
+
+		if ($tanggal_awal == null && $tanggal_akhir == null) {
+			$data['monitoring'] = $this->Data_model->DataMonitoring('');
+		} else {
+			$data['monitoring'] = $this->Data_model->DataMonitoring([
+				'DATE(dibuat) >=' => $tanggal_awal,
+				'DATE(dibuat) <=' => $tanggal_akhir
+			]);
+		}
+
 		$data['title'] = 'Data Monitoring';
-		$data['monitoring'] = $this->Data_model->DataMonitoring();
+
+
 		$data['tbl_user'] = $this->db->get_where('tbl_user', ['username' => $this->session->userdata('username')])->row_array();
+
+		$data['tanggal_awal']  = $tanggal_awal;
+		$data['tanggal_akhir'] = $tanggal_akhir;
 
 		$this->load->view('templates/header', $data);
 		$this->load->view('templates/sidebar', $data);
@@ -398,6 +449,54 @@ class Admin extends CI_Controller
 		$this->load->view('templates/sidebar', $data);
 		$this->load->view('templates/topbar', $data);
 		$this->load->view('admin/alkohol', $data);
+		$this->load->view('templates/footer');
+	}
+
+	public function tapematang()
+	{
+		$data['title'] = 'Data Laporan Tape Matang';
+		$data['monitoring'] = $this->Data_model->DataMonitoring([
+			'alkohol >=' => 4
+		]);
+		$data['tbl_user'] = $this->db->get_where('tbl_user', ['username' => $this->session->userdata('username')])->row_array();
+
+		$this->load->view('templates/header', $data);
+		$this->load->view('templates/sidebar', $data);
+		$this->load->view('templates/topbar', $data);
+		$this->load->view('admin/tapematang', $data);
+		$this->load->view('templates/footer');
+	}
+
+	public function hasilproduksi($tanggal_awal = null, $tanggal_akhir = null)
+	{
+		if ($tanggal_awal > $tanggal_akhir) {
+			$this->session->set_flashdata('message', '<div class="alert alert-danger" role="alert">Tanggal awal tidak boleh melebihi tanggal akhir</div>');
+
+			redirect($_SERVER['HTTP_REFERER'], 'refresh');
+		}
+
+		if ($tanggal_awal == null && $tanggal_akhir == null) {
+			$data['monitoring'] = $this->Data_model->DataMonitoring([
+				'alkohol >=' => 4
+			]);
+		} else {
+			$data['monitoring'] = $this->Data_model->DataMonitoring([
+				'alkohol >=' => 4,
+				'DATE(dibuat) >=' => $tanggal_awal,
+				'DATE(dibuat) <=' => $tanggal_akhir
+			]);
+		}
+
+		$data['title'] = 'Data Laporan Hasil Produksi';
+		$data['tbl_user'] = $this->db->get_where('tbl_user', ['username' => $this->session->userdata('username')])->row_array();
+
+		$data['tanggal_awal']  = $tanggal_awal;
+		$data['tanggal_akhir'] = $tanggal_akhir;
+
+		$this->load->view('templates/header', $data);
+		$this->load->view('templates/sidebar', $data);
+		$this->load->view('templates/topbar', $data);
+		$this->load->view('admin/hasilproduksi', $data);
 		$this->load->view('templates/footer');
 	}
 
@@ -484,8 +583,10 @@ class Admin extends CI_Controller
 		}
 
 		$data['title'] = 'Cetak Laporan';
-		$data['tbl_user'] = $this->db->get_where('tbl_user', ['username' =>
-		$this->session->userdata('username')])->row_array();
+		$data['tbl_user'] = $this->db->get_where('tbl_user', [
+			'username' => $this->session->userdata('username')
+		])->row_array();
+
 		$this->load->view('templates/header', $data);
 		$this->load->view('templates/sidebar', $data);
 		$this->load->view('templates/topbar', $data);

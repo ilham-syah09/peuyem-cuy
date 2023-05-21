@@ -9,15 +9,18 @@ class Data_model extends CI_Model
         return $this->db->query($query);
     }
 
-    public function DataMonitoring()
+    public function DataMonitoring($where = null)
     {
+        if ($where) {
+            $this->db->where($where);
+        }
         $this->db->order_by('id', 'desc');
         return $this->db->get('tbl_sensor')->result_array();
     }
 
     public function ambildibaca()
     {
-        $this->db->select("*")->from('tbl_sensor')->where('alkohol', 4)->order_by('id', 'DESC')->limit(5);
+        $this->db->select("*")->from('tbl_sensor')->order_by('id', 'DESC')->limit(5);
         return $this->db->get()->result_array();
     }
 
