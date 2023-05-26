@@ -7,11 +7,9 @@
 
     <!-- Content Row -->
     <div class="row">
-
-        <div class="col-xl-6 col-lg-7 mx-auto">
-
+        <div class="col-xl-6 col-lg-12 col-md-12 col-sm-12 mx-auto">
             <!-- Donut Chart -->
-            <div class="col-xl-12 col-lg-5">
+            <div class="col-xl-12 col-lg-12">
                 <div class="card shadow mb-4">
                     <!-- Card Header - Dropdown -->
                     <div class="card-header py-3">
@@ -27,7 +25,6 @@
     </div>
 
     <div class="row">
-
         <!-- Area Chart -->
         <div class="col">
             <div class="card shadow mb-4">
@@ -77,34 +74,49 @@
     document.addEventListener('DOMContentLoaded', function() {
         getAlkohol();
         chartAlkohol = Highcharts.chart('chart-alkohol', {
-            chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false,
-                type: 'pie'
-            },
             title: {
-                text: 'Grafik Kadar Alkohol'
+                text: 'Grafik Kadar Alkohol',
+                align: 'center'
             },
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
+            subtitle: {
+                useHTML: true,
+                floating: true,
+                verticalAlign: 'middle',
+                y: 30
             },
+
+            legend: {
+                enabled: false
+            },
+
+            tooltip: {
+                valueDecimals: 0,
+                valueSuffix: ' Tape'
+            },
+
             plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
+                series: {
+                    borderWidth: 0,
+                    colorByPoint: true,
+                    type: 'pie',
+                    size: '100%',
+                    innerSize: '80%',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y} Tape'
-                    },
-                    showInLegend: true
+                        crop: false,
+                        distance: '-10%',
+                        style: {
+                            fontWeight: 'bold',
+                            fontSize: '16px'
+                        },
+                        connectorWidth: 0
+                    }
                 }
             },
+            colors: ['#ff0000', '#009933'],
             series: [{
-                name: 'Keterangan',
-                colorByPoint: true
+                type: 'pie',
+                name: 'Jumlah',
             }]
         });
     });
@@ -115,8 +127,11 @@
             dataType: 'json',
             success: function(result) {
                 let dataAlkohol = [];
+                var totalTape = 0;
 
                 for (let i = 0; i < result.length; i++) {
+                    totalTape += parseInt(result[i].total);
+
                     dataAlkohol.push({
                         name: result[i].name,
                         y: parseInt(result[i].total)
@@ -124,6 +139,9 @@
                 }
 
                 chartAlkohol.series[0].setData(dataAlkohol);
+                chartAlkohol.setSubtitle({
+                    text: `Total : ${totalTape} Tape`
+                });
             }
         })
     }

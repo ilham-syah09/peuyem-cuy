@@ -210,34 +210,49 @@
         });
 
         chartAlkohol = Highcharts.chart('chart-alkohol', {
-            chart: {
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: false,
-                type: 'pie'
-            },
             title: {
-                text: 'Grafik Kadar Alkohol'
+                text: 'Grafik Kadar Alkohol',
+                align: 'center'
             },
-            accessibility: {
-                point: {
-                    valueSuffix: '%'
-                }
+            subtitle: {
+                useHTML: true,
+                floating: true,
+                verticalAlign: 'middle',
+                y: 30
             },
+
+            legend: {
+                enabled: false
+            },
+
+            tooltip: {
+                valueDecimals: 0,
+                valueSuffix: ' Tape'
+            },
+
             plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
+                series: {
+                    borderWidth: 0,
+                    colorByPoint: true,
+                    type: 'pie',
+                    size: '100%',
+                    innerSize: '80%',
                     dataLabels: {
                         enabled: true,
-                        format: '<b>{point.name}</b>: {point.y} Tape'
-                    },
-                    showInLegend: true
+                        crop: false,
+                        distance: '-10%',
+                        style: {
+                            fontWeight: 'bold',
+                            fontSize: '16px'
+                        },
+                        connectorWidth: 0
+                    }
                 }
             },
+            colors: ['#ff0000', '#009933'],
             series: [{
-                name: 'Keterangan',
-                colorByPoint: true
+                type: 'pie',
+                name: 'Jumlah',
             }]
         });
     });
@@ -248,8 +263,11 @@
             dataType: 'json',
             success: function(result) {
                 let dataAlkohol = [];
+                var totalTape = 0;
 
                 for (let i = 0; i < result.length; i++) {
+                    totalTape += parseInt(result[i].total);
+
                     dataAlkohol.push({
                         name: result[i].name,
                         y: parseInt(result[i].total)
@@ -257,6 +275,9 @@
                 }
 
                 chartAlkohol.series[0].setData(dataAlkohol);
+                chartAlkohol.setSubtitle({
+                    text: `Total : ${totalTape} Tape`
+                });
             }
         })
     }
